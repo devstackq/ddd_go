@@ -10,4 +10,5 @@ type Item struct {
 	ID          uuid.UUID
 	Name        string
 	Description string
+	// Cost float32
 }

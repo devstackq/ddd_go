@@ -2,6 +2,7 @@ package aggregate
 
 import (
 	"errors"
+	"sort"
 
 	"github.com/devstackq/tg_bot_ddd/internal/entity"
 	"github.com/devstackq/tg_bot_ddd/internal/valueObject"
@@ -22,6 +23,8 @@ type Customer struct {
 	transactions []*valueObject.Transaction // with pointers - for mutable object by pointer
 }
 
+// pattern fabric
+// Сейчас фабрика взяла на себя всю ответственность по валидации входных данных, созданию нового ID и заданию всех начальных значений
 func NewCustomer(name string) (Customer, error) {
 	// can - sanitaze, validation
 	if name == "" {
@@ -36,13 +39,18 @@ func NewCustomer(name string) (Customer, error) {
 	}, nil
 }
 
+func (c *Customer) SortProductByName() {
+	sort.SliceStable(c.products, func(i, j int) bool {
+		return len(c.products[i].Name) < len(c.products[j].Name)
+	})
+}
+
 // getter
 func (c *Customer) GetID() uuid.UUID {
 	return c.person.ID
 }
 
 // setter
-
 func (c *Customer) SetID(id uuid.UUID) {
 	if c.person == nil {
 		c.person = &entity.Person{}
