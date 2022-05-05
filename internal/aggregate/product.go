@@ -19,6 +19,7 @@ func NewProduct(name, description string, price float64) (Product, error) {
 	if name != "" && description != "" && price > 0 {
 		return Product{
 			item: &entity.Item{
+				ID:          uuid.New(),
 				Name:        name,
 				Description: description,
 			},

@@ -9,15 +9,15 @@ import (
 )
 
 func init_products(t *testing.T) []aggregate.Product {
-	beer, err := aggregate.NewProduct("Beer", "Healthy Beverage", 2.34)
+	beer, err := aggregate.NewProduct("Beer1", "Healthy Beverage1", 2.34)
 	if err != nil {
 		t.Error(err)
 	}
-	peenuts, err := aggregate.NewProduct("Peenuts", "Healthy Snacks", 0.99)
+	peenuts, err := aggregate.NewProduct("Peenuts1", "Healthy Snacks1", 0.99)
 	if err != nil {
 		t.Error(err)
 	}
-	wine, err := aggregate.NewProduct("Wine", "Healthy Snacks", 0.99)
+	wine, err := aggregate.NewProduct("Wine1", "Healthy Snacks1", 0.99)
 	if err != nil {
 		t.Error(err)
 	}
@@ -32,6 +32,11 @@ func TestOrder_NewOrderService(t *testing.T) {
 	products := init_products(t)
 
 	// init service; add products fake db
+	// add new customer db
+	cust, err := aggregate.NewCustomer("user1")
+	if err != nil {
+		t.Error(err)
+	}
 
 	orderSrv, err := NewOrderService(
 		WithMemoryCustomerRepository(),
@@ -40,23 +45,19 @@ func TestOrder_NewOrderService(t *testing.T) {
 	if err != nil {
 		t.Error(err)
 	}
-	// add new customer db
-	// cust, err := aggregate.NewCustomer("zussy")
-	// if err != nil {
-	// 	t.Error(err)
-	// }
-	// orderSrv.customers.Add(cust)
 
-	// cId := cust.GetID()
+	orderSrv.customers.Add(cust)
 
-	order := []uuid.UUID{
+	cId := cust.GetID()
+
+	ordersIds := []uuid.UUID{
 		products[0].GetID(),
 		products[2].GetID(),
 	}
 
-	price, err := orderSrv.CreateOrder(uuid.MustParse("tezt"), order)
+	price, err := orderSrv.CreateOrder(cId, ordersIds)
 	if err != nil {
 		t.Error(err)
 	}
-	log.Print(price, err)
+	log.Print(price, err, ordersIds, cust.GetID())
 }

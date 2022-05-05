@@ -34,30 +34,25 @@ func (m *MemoryProductRepository) GetByID(id uuid.UUID) (aggregate.Product, erro
 	return aggregate.Product{}, product.ErrProductNotFound
 }
 
-func (m *MemoryProductRepository) Add(pr aggregate.Product) error {
-	if m.products == nil {
-		m.Lock()
-		m.products = make(map[uuid.UUID]aggregate.Product)
-		m.Unlock()
-	}
+func (m *MemoryProductRepository) Add(newProduct aggregate.Product) error {
+	m.Lock()
+	defer m.Unlock()
 
-	if _, ok := m.products[pr.GetID()]; ok {
+	if _, ok := m.products[newProduct.GetID()]; ok {
 		return product.ErrProductAlreadyExist
 	}
 
-	m.Lock()
-	m.products[pr.GetID()] = pr
-	m.Unlock()
+	m.products[newProduct.GetID()] = newProduct
 	return nil
 }
 
 func (m *MemoryProductRepository) Update(pr aggregate.Product) error {
+	m.Lock()
+	defer m.Unlock()
 	if _, ok := m.products[pr.GetID()]; !ok {
 		return product.ErrProductNotFound
 	}
 
-	m.Lock()
 	m.products[pr.GetID()] = pr
-	m.Unlock()
 	return nil
 }

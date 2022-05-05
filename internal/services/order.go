@@ -50,16 +50,16 @@ func WithMemoryCustomerRepository() OrderConfigurations {
 
 func WithMemoryProductRepository(products []aggregate.Product) OrderConfigurations {
 	return func(os *OrderService) error {
-		memoryProductRepo := productMemory.New()
+		pr := productMemory.New()
 		// add product to memory
 		for _, p := range products {
-			err := memoryProductRepo.Add(p)
+
+			err := pr.Add(p)
 			if err != nil {
 				return err
 			}
 		}
-
-		os.products = memoryProductRepo
+		os.products = pr
 		return nil
 	}
 }
@@ -70,6 +70,7 @@ func (os *OrderService) CreateOrder(customerId uuid.UUID, productIds []uuid.UUID
 
 	customerq, err := os.customers.Get(customerId)
 	if err != nil {
+		log.Print(err, "her")
 		return 0, err
 	}
 	var products []aggregate.Product
@@ -86,7 +87,7 @@ func (os *OrderService) CreateOrder(customerId uuid.UUID, productIds []uuid.UUID
 	}
 	// then remove - product by id -> memoryProduct
 
-	log.Printf("Customer: %s has ordered %d products", customerq.GetID(), len(products))
+	log.Printf("Customer: %s has ordered %d products at sum %f", customerq.GetID(), len(products), price)
 
 	return price, nil
 }
